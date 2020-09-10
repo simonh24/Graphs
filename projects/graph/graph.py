@@ -99,10 +99,7 @@ class Graph:
                 visited.add(v)
                 vert_neighbors = self.get_neighbors(v)
                 for n in vert_neighbors:
-                    if n not in visited:
-                        new_path = path.copy()
-                        new_path.append(n)
-                        to_visit.enqueue(new_path)
+                    to_visit.enqueue(path + [n])
         return None
 
 
@@ -124,10 +121,7 @@ class Graph:
                 visited.add(v)
                 vert_neighbors = self.get_neighbors(v)
                 for n in vert_neighbors:
-                    if n not in visited:
-                        new_path = path.copy()
-                        new_path.append(n)
-                        to_visit.push(new_path)
+                    to_visit.push(path + [n])
         return None
 
     def dfs_recursive(self, starting_vertex, destination_vertex, visited=set()):
@@ -147,9 +141,7 @@ class Graph:
             elif path[-1] not in visited:
                 visited.add(path[-1])
                 for n in self.get_neighbors(path[-1]):
-                    new_path = path[:]
-                    new_path.append(n)
-                    dft(new_path)
+                    dft(path + [n])
             else:
                 return
         
