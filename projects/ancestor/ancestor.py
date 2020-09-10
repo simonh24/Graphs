@@ -11,37 +11,65 @@ class Stack():
     def size(self):
         return len(self.stack)
 
-def earliest_ancestor(ancestors, starting_node):
-    dict_ancestor = {}
-    to_visit = Stack()
-    visited = set()
-    longest_path = []
+class Graph:
+    def __init__(self):
+        self.vertices = {}
 
-    for i, x in enumerate(ancestors):
-        dict_ancestor[i] = x
+    def add_vertices(self, vertex_id):
+        self.vertices[vertex_id] = set()
 
-    for i, v in dict_ancestor.items():
-        if v[1] is starting_node:
-            to_visit.push([i])
+    def add_edge(self, v1, v2):
+        self.vertices[v1].add(v2)
 
-    size = to_visit.size()
+    def add_node(self, v1, v2):
+        if v1 not in self.vertices:
+            self.add_vertices(v1)
+        if v2 not in self.vertices:
+            self.add_vertices(v2)
+        self.vertices[v1].add(v2)
 
-    if to_visit.size() > 0:
-        while to_visit.size() > 0:
-            path = to_visit.pop()
+    def get_parents(self, vertex_id):
+        parents_list = []
+        for item in self.vertices[vertex_id]:
+            parents_list.append(item)
+        return parents_list
+
+    def dfs(self, starting_vertex):
+        s = Stack()
+        s.push([starting_vertex])
+        visited = set()
+        out = []
+        while s.size() > 0:
+            path = s.pop()
             v = path[-1]
             if v not in visited:
+                if len(self.get_parents(v)) < 1:
+                    out.append(path)
                 visited.add(v)
-                parent = dict_ancestor[v][0]
-                for i, n in dict_ancestor.items():
-                    if n[1] is parent:
-                        new_path = path + [i]
-                        to_visit.push(new_path)
-                        if len(new_path) > len(longest_path):
-                            longest_path = new_path
-                    elif i == len(dict_ancestor) - 1:
-                        longest_path = path
-        final_answer = (dict_ancestor[longest_path[-1]][0])
-        return final_answer 
+                for n in self.get_parents(v):
+                    if n not in visited:
+                        s.push(path + [n])
+        return out
+
+def earliest_ancestor(ancestors_list, starting_node):
+    out = -1
+    graph = Graph()
+    for pair in ancestors_list:
+        graph.add_node(pair[1], pair[0])
+    search = graph.dfs(starting_node)
+    if len(search) > 1:
+        path_length = 0
+        solution_path = []
+        for path in search:
+            if len(path) > path_length:
+                path_length = len(path)
+                solution_path = path
+            elif len(path) == path_length:
+                if path[-1] < solution_path[-1]:
+                    solution_path = path
+        solution_array = solution_path
     else:
-        return -1
+        solution_array = search[0]
+    if len(solution_array) > 1:
+        out = solution_array[-1]
+    return out
